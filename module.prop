@@ -1,0 +1,6 @@
+id=pffm20_120hz_rr_override
+name=PFFM20 120Hz Refresh Rule Override
+version=1.0
+versionCode=1
+author=Codex
+description=PFFM20/OPPO-specific systemless override for refresh_rate_config.xml; changes only the 120Hz setting slot in vendor app refresh-rate rules.
