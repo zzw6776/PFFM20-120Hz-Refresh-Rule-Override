@@ -22,7 +22,20 @@ unmount_exact() {
   local target="$1"
   is_exact_mountpoint "$target" || return 0
   umount "$target" 2>/dev/null || umount -l "$target" 2>/dev/null || return 1
+  is_exact_mountpoint "$target" && sleep 1
   ! is_exact_mountpoint "$target"
+}
+
+cleanup_fake_root() {
+  local stage="$1" fake_dir="$FAKE_ROOT/ctx_system_file"
+  unmount_exact "$fake_dir" || {
+    log ERROR "$stage cannot unmount existing fake tmpfs: $fake_dir"
+    return 1
+  }
+  rm -rf "$FAKE_ROOT" 2>/dev/null || {
+    log ERROR "$stage cannot remove fake root: $FAKE_ROOT"
+    return 1
+  }
 }
 
 get_context() {
@@ -42,7 +55,7 @@ apply_refresh_config_mount() {
     return 1
   }
 
-  rm -rf "$FAKE_ROOT" 2>/dev/null
+  cleanup_fake_root "$stage" || return 1
   mkdir -p "$FAKE_ROOT" 2>/dev/null || return 1
   chown 0:0 "$FAKE_ROOT" 2>/dev/null
   chmod 0700 "$FAKE_ROOT" 2>/dev/null

@@ -6,7 +6,7 @@ Magisk module for OPPO PFFM20 / OP520F on ColorOS 12.1. It systemlessly override
 /my_product/etc/refresh_rate_config.xml
 ```
 
-The module changes the fourth slot of each `rateId`, which corresponds to the 120Hz setting mode in this firmware's XML format. It also sets `disableViewOverride="true"` on every `<item>` rule so app/window-level refresh-rate requests cannot override the XML rule back to 60Hz. The global `<config>` row is rewritten to disable OPPO's input-method low-rate policy:
+The install helper generates the override XML from the device's current `/my_product/etc/refresh_rate_config.xml`. It changes the fourth slot of each `rateId`, which corresponds to the 120Hz setting mode in this firmware's XML format. It also sets `disableViewOverride="true"` on every `<item>` rule so app/window-level refresh-rate requests cannot override the XML rule back to 60Hz. The global `<config>` row is rewritten to disable OPPO's input-method low-rate policy:
 
 ```xml
 <config enableRateOverride="true" inputMethodLowRate="false" enableFodHighRate="true" />
@@ -25,9 +25,9 @@ This keeps auto / 90Hz / 60Hz behavior untouched while preventing OPPO's app-spe
 
 The runtime mount follows the same pattern used by the PFFM20 temperature spoof module:
 
-1. `post-fs-data.sh` only prepares state storage.
+1. `mount-refresh-config.sh` prepares state storage and shared mount helpers.
 2. `post-fs-data.sh` applies the tmpfs bind mount early so OPPO's display services load the modified XML.
-3. `service.sh` runs at late_start service time and reapplies the same mount as a fallback.
+3. `service.sh` runs at late_start service time and reapplies the same mount as a fallback, first cleaning any previous tmpfs source mount.
 4. The mount source is created under:
 
 ```text
@@ -57,26 +57,23 @@ post-fs-data.sh
 service.sh
 mount-refresh-config.sh
 files/refresh_rate_config.xml
-tools/generate_refresh_config.py
 tools/device-install.sh
 tools/device-verify.sh
-references/refresh_rate_config.original.xml
-references/refresh_rate_config.global120.xml
 ```
 
-## Regenerate XML
+`files/refresh_rate_config.xml` is generated on the device during install and is not stored in the repository.
+
+## Device Install
+
+Stage the repository on the device and run the install helper:
 
 ```bash
-python tools/generate_refresh_config.py references/refresh_rate_config.original.xml files/refresh_rate_config.xml
+adb -s 192.168.50.101:35555 shell su -c 'rm -rf /data/local/tmp/global120hz'
+adb -s 192.168.50.101:35555 push . /data/local/tmp/global120hz
+adb -s 192.168.50.101:35555 shell su -c 'sh /data/local/tmp/global120hz/tools/device-install.sh'
 ```
 
-To pull the current XML from a connected device and generate from that source:
-
-```bash
-python tools/generate_refresh_config.py --from-device --serial 192.168.50.101:35555 --save-source references/refresh_rate_config.device.xml files/refresh_rate_config.xml
-```
-
-`--from-device` reads `/my_product/etc/refresh_rate_config.xml` through `adb shell su -c`.
+The installer backs up the original XML and writes the generated module copy to `/data/adb/modules/pffm20_120hz_rr_override/files/refresh_rate_config.xml`.
 
 ## Installed Module ID
 

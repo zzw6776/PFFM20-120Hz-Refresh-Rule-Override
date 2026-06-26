@@ -4,4 +4,6 @@ MODDIR="${0%/*}"
 
 log INFO "========== post-fs-data start =========="
 apply_refresh_config_mount post-fs-data
-log INFO "post-fs-data end: result=$?"
+result=$?
+log INFO "post-fs-data end: result=$result"
+exit "$result"

@@ -1,24 +1,23 @@
-# Compiled class file
-*.class
+# Local editor state
+.idea/
 
-# Log file
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Logs
 *.log
 
-# BlueJ files
-*.ctxt
-
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
-*.jar
-*.war
-*.nar
-*.ear
+# Generated packages
 *.zip
 *.tar.gz
 *.rar
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
-replay_pid*
+# Local staging/output
+out/
+build/
+docs/changes/
+files/refresh_rate_config.xml
+references/refresh_rate_config.device.xml
+references/refresh_rate_config.global120.xml
+references/refresh_rate_config.original.xml

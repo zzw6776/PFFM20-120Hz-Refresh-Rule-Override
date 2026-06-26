@@ -6,6 +6,8 @@ ls -laZ /dev/pffm20_120hz_rr_override /dev/pffm20_120hz_rr_override/ctx_system_f
 echo "### mountinfo"
 grep '/my_product/etc/refresh_rate_config.xml' /proc/self/mountinfo 2>/dev/null || true
 grep '/dev/pffm20_120hz_rr_override' /proc/self/mountinfo 2>/dev/null || true
+echo "### runtime source mount count"
+awk '$5 == "/dev/pffm20_120hz_rr_override/ctx_system_file" { count++ } END { print count + 0 }' /proc/self/mountinfo 2>/dev/null || true
 echo "### contexts"
 ls -laZ /my_product/etc/refresh_rate_config.xml /dev/pffm20_120hz_rr_override/ctx_system_file/refresh_rate_config.xml 2>&1
 echo "### samples"
